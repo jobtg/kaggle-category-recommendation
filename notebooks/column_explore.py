@@ -2,6 +2,7 @@
 Determine fundamental column details.
 """
 import logging
+import pandas as pd
 
 
 def series_details(series, series_name):
