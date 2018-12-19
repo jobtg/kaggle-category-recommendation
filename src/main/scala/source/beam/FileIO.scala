@@ -1,13 +1,13 @@
 package source.beam
 
-import source.string.StringTransformer.matcher._
+import source.string.StringTransformer
 import com.spotify.scio.ScioContext
 import com.spotify.scio.coders.Coder
 import com.spotify.scio.values.SCollection
 
 import scala.io.Source
 
-class FileIO {
+class FileIO extends StringTransformer {
   implicit def coderObject: Coder[Object] = Coder.kryo[Object]
 
   private def readCsvColumnHeaders(path: String,
