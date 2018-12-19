@@ -7,8 +7,14 @@ import com.spotify.scio.values.SCollection
 
 import scala.io.Source
 
-class FileIO extends StringTransformer {
+class FileIO extends StringTransformer with Serializable {
   implicit def coderObject: Coder[Object] = Coder.kryo[Object]
+
+  private def keyValueSplit(line: String, columnNames: Seq[String], keyIndex: Int, sep: String): Seq[Object] = {
+    val lineSplit = line.split(sep)
+
+    Seq(lineSplit(keyIndex), columnNames.zip(lineSplit.map(_.matchDataType)).toMap)
+  }
 
   private def readCsvColumnHeaders(path: String,
                                    sep: String = ",",
@@ -31,10 +37,7 @@ class FileIO extends StringTransformer {
 
     sc
       .textFile(path)
-      .map(
-        x => Seq(
-          x.split(",")(keyIndex),
-          columnNames.zip(x.split(",").map(_.matchDataType)).toMap))
+      .map(x => keyValueSplit(x, columnNames, keyIndex, sep))
   }
 
 }
