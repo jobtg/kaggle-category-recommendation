@@ -10,7 +10,7 @@ import scala.io.Source
 class FileIO extends StringTransformer with Serializable {
   implicit def coderObject: Coder[Object] = Coder.kryo[Object]
 
-  private def keyValueSplit(line: String, columnNames: Seq[String], keyIndex: Int, sep: String): Seq[Object] = {
+  private def keyValueSplit(columnNames: Seq[String], keyIndex: Int, sep: String)(line: String): Seq[Object] = {
     val lineSplit = line.split(sep)
 
     Seq(lineSplit(keyIndex), columnNames.zip(lineSplit.map(_.matchDataType)).toMap)
@@ -37,7 +37,7 @@ class FileIO extends StringTransformer with Serializable {
 
     sc
       .textFile(path)
-      .map(x => keyValueSplit(x, columnNames, keyIndex, sep))
+      .map(keyValueSplit(columnNames, keyIndex, sep))
   }
 
 }
