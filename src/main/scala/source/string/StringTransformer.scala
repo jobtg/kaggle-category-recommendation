@@ -17,6 +17,8 @@ trait StringTransformer {
 
     def matchDataType: Any =
       s match {
+        case "N" => false
+        case "Y" => true
         case numberFormat() => s.toString.toInt
         case floatFormat() => s.toString.toFloat
         case dateMonthFormat() => new java.text.SimpleDateFormat("yyyy-MM-dd").parse(s + "-01")
@@ -26,4 +28,3 @@ trait StringTransformer {
   }
 
 }
-
