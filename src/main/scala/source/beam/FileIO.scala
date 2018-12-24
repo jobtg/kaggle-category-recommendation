@@ -1,11 +1,14 @@
 package source.beam
 
+import java.nio.channels.Channels
+
+import scala.io.Source.fromInputStream
 import source.string.StringTransformer
 import com.spotify.scio.ScioContext
 import com.spotify.scio.coders.Coder
 import com.spotify.scio.values.SCollection
-
-import scala.io.Source
+import org.apache.beam.sdk.io.FileSystems
+import org.apache.beam.sdk.options.PipelineOptionsFactory
 
 class FileIO extends StringTransformer with Serializable {
   implicit def coderObject: Coder[Object] = Coder.kryo[Object]
@@ -19,12 +22,22 @@ class FileIO extends StringTransformer with Serializable {
   private def readCsvColumnHeaders(path: String,
                                    sep: String = ",",
                                    header: Boolean = true): Array[String] = {
-    val src = Source.fromFile(path)
-    val line = src.getLines.next().split(sep)
+    // Register GS filesystem.
+    val options = PipelineOptionsFactory.create()
+    FileSystems.setDefaultPipelineOptions(options)
+
+    val src = Channels
+      .newInputStream(
+        FileSystems.open(
+          FileSystems
+            .matchSingleFileSpec(path)
+            .resourceId()))
+
+    val headerLine = fromInputStream(src).getLines.next.split(sep)
 
     src.close()
 
-    if (header) line else line.zipWithIndex.map { case (_, i) => s"c_$i" }
+    if (header) headerLine else headerLine.zipWithIndex.map { case (_, i) => s"c_$i" }
   }
 
   def readCsv(sc: ScioContext,
