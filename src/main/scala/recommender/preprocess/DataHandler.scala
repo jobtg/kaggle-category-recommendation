@@ -10,7 +10,20 @@ import org.apache.beam.sdk.transforms.Combine.CombineFn
 import source.beam.FileIO
 
 
-case class Transaction(cardId: String, purchaseAmount: Float)
+case class Transaction(cardId: String, purchaseAmount: Float) {
+
+  def +(other: Transaction): Transaction =
+    Transaction(other.cardId, other.purchaseAmount + purchaseAmount)
+
+}
+
+object Transaction {
+  def apply(row: Map[String, Any]): Transaction =
+    Transaction(row.get("card_id").toString, row.get("purchase_amount").toString.toFloat)
+
+
+  def apply(): Transaction = Transaction(null, 0.0f)
+}
 
 class DataPreProcessHandler(@transient val sc: ScioContext,
                             val input: String,
@@ -20,8 +33,9 @@ class DataPreProcessHandler(@transient val sc: ScioContext,
       .union(readCsv(sc, basePath + "sample_raw/new_merchant_transactions.csv"))
 
     totalTransactions
-      .keyBy(_.get("card_id"))
-      .aggregateByKey()
+      .map(Transaction(_))
+      .keyBy(_.cardId) // [K,Map[String,Any]]]
+      .aggregateByKey(Transaction())(_ + _, _ + _)
 
     //    totalTransactions.apply
 
