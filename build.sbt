@@ -15,12 +15,8 @@ lazy val commonSettings = Defaults.coreDefaultSettings ++ Seq(
     "-deprecation",
     "-feature",
     "-unchecked"),
-  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-  updateOptions := updateOptions.value.withLatestSnapshots(false),
-  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-  libraryDependencies ++= Seq(
-    "org.platanios" %% "tensorflow" % "0.4.2-SNAPSHOT" classifier "linux-cpu-x86_64",
-  )
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx4G", "-Xms4G"),
+  updateOptions := updateOptions.value.withLatestSnapshots(false)
 )
 
 lazy val paradiseDependency = "org.scalamacros" % "paradise" % scalaMacrosVersion cross CrossVersion.full
@@ -50,17 +46,17 @@ lazy val root: Project = project
   )
   .enablePlugins(PackPlugin)
 
-lazy val repl: Project = project
-  .in(file(".repl"))
-  .settings(commonSettings)
-  .settings(macroSettings)
-  .settings(
-    name := "repl",
-    description := "Scio REPL for recommender",
-    libraryDependencies ++= Seq(
-      "com.spotify" %% "scio-repl" % scioVersion,
-    ),
-    Compile / mainClass := Some("com.spotify.scio.repl.ScioShell"),
-    publish / skip := true
-  )
-  .dependsOn(root)
+//lazy val repl: Project = project
+//  .in(file(".repl"))
+//  .settings(commonSettings)
+//  .settings(macroSettings)
+//  .settings(
+//    name := "repl",
+//    description := "Scio REPL for recommender",
+//    libraryDependencies ++= Seq(
+//      "com.spotify" %% "scio-repl" % scioVersion,
+//    ),
+//    Compile / mainClass := Some("com.spotify.scio.repl.ScioShell"),
+//    publish / skip := true
+//  )
+//  .dependsOn(root)
